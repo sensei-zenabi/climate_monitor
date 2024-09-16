@@ -51,9 +51,13 @@ ax.set_facecolor('black')
 plt.subplots_adjust(left=0, right=1, top=1, bottom=0)
 world.plot(ax=ax, color='forestgreen', edgecolor='limegreen', alpha=0.5, lw=0.5)
 plt.title('ACTIVE MEASUREMENT STATIONS', color='limegreen', fontname='Ubuntu', fontsize=16)
+plt.text(-190,-106,s="Click station to view details", color='limegreen', fontsize=10)
+plt.text(-190,-110,s="Press Q to Exit plot", color='limegreen', fontsize=10)
 
 # Plot the GPS coordinates
-sc = gdf.plot(ax=plt.gca(), c=pd.to_numeric(gdf['# STATION_ID']), markersize=25)
+sc = gdf.plot(ax=plt.gca(), 
+              c=pd.to_numeric(gdf['# STATION_ID']) / pd.to_numeric(gdf['# STATION_ID']).max(), 
+              markersize=25)
 
 # Use mplcursors to annotate the points with the Station ID on mouse click
 cursor = mplcursors.cursor(sc, hover=False)
@@ -76,6 +80,8 @@ def on_add(sel):
     print("HELLO WORLD!")
 
 # Display the plot
+manager = plt.get_current_fig_manager()
+manager.full_screen_toggle()
 plt.show()
 
 # %% Sandbox
