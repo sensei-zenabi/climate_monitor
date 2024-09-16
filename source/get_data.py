@@ -29,7 +29,7 @@ def get_files_from_server(URL, extension=".txt", remove_extension=True):
     DF_DATA = pd.DataFrame(links, columns=['Filename']);
     
     # Filter the dataframe
-    DF_DATA = DF_DATA[DF_DATA['Filename'].str.contains(extension)].reset_index().drop('index', 1);
+    DF_DATA = DF_DATA[DF_DATA['Filename'].str.contains(extension)].reset_index().drop(['index'], axis=1);
     
     # Remove the extension
     if (remove_extension):

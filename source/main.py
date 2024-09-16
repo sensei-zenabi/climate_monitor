@@ -18,7 +18,7 @@ DF_BUOY_IDs = get_data.get_files_from_server(URL_BUOY_REALTIME_ROOT)
 DF_STATION_INFO = get_data.get_table_from_server(URL_BUOY_STATION_INFO)
 
 # Filter the station info to contain only the buoys from which there are realtime data 
-DF_STATION_INFO = DF_STATION_INFO[DF_STATION_INFO['# STATION_ID'].isin(DF_BUOY_IDs['Filename'])].reset_index().drop('index', 1);
+DF_STATION_INFO = DF_STATION_INFO[DF_STATION_INFO['# STATION_ID'].isin(DF_BUOY_IDs['Filename'])].reset_index().drop(['index'], axis=1);
 
 # Fix the GPS format
 DF_STATION_INFO['LOCATION'] = DF_STATION_INFO['LOCATION'].str.split('(').str[0].str.strip()
@@ -50,7 +50,7 @@ ax = fig.add_subplot()
 ax.set_facecolor('black')
 plt.subplots_adjust(left=0, right=1, top=1, bottom=0)
 world.plot(ax=ax, color='forestgreen', edgecolor='lime', lw=0.5)
-plt.title('ACTIVE MEASUREMENT STATIONS', color='lime', fontname='Consolas', fontsize=16)
+plt.title('ACTIVE MEASUREMENT STATIONS', color='lime', fontname='Ubuntu', fontsize=16)
 
 # Plot the GPS coordinates
 sc = gdf.plot(ax=plt.gca(), color='red', markersize=25)
@@ -65,7 +65,7 @@ def on_add(sel):
     sel.annotation.set(text=f"Station ID: {station_id}\nLocation: {location}", 
                        position=(sel.target[0], sel.target[1]),
                        anncoords="offset points", fontsize=9,
-                       fontname="Consolas", color="lime",
+                       fontname="Ubuntu", color="lime",
                        backgroundcolor="lime", alpha=1)
     sel.annotation.arrow_patch.set(arrowstyle="simple", fc="lime")
     bbox = sel.annotation.get_bbox_patch()
