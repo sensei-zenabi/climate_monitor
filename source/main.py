@@ -1,6 +1,6 @@
 import pandas as pd
 import geopandas as gpd
-import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt 
 import mplcursors
 
 import get_data
@@ -79,16 +79,17 @@ def on_add(sel):
     bbox = sel.annotation.get_bbox_patch()
     bbox.set_alpha(0.95)  # Set transparency level (0.0 to 1.0)
     bbox.set_facecolor('darkgreen')
-    
-    print("HELLO WORLD!")
 
 # Display the plot
 manager = plt.get_current_fig_manager()
 manager.full_screen_toggle()
-plt.show()
+plt.show(block=True)
 
-# %% Sandbox
+while (True):
+    print("Hit Q to exit...");
+    s = input();
+    if (s=='q'):
+        break;
 
-tmp = get_data.get_table_latest_value_from_server(URL_BUOY_REALTIME_ROOT, 
-                                                  DF_STATION_INFO['# STATION_ID'][0],
-                                                  COLS[14])
+
+
