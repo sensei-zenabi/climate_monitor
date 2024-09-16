@@ -67,7 +67,10 @@ def on_add(sel):
     station_id = DF_STATION_INFO.iloc[sel.index]['# STATION_ID']
     ttype = DF_STATION_INFO.iloc[sel.index]['TTYPE']
     location = DF_STATION_INFO.iloc[sel.index]['LOCATION']
-    sel.annotation.set(text=f"ID: {station_id} - {ttype}\nLocation: {location}", 
+    wtrtemp = get_data.get_table_latest_value_from_server(URL_BUOY_REALTIME_ROOT, 
+                                                          station_id,
+                                                          COLS[14])
+    sel.annotation.set(text=f"ID: {station_id} - {ttype}\nLocation: {location}\nWater Temp: {wtrtemp}°C", 
                        position=(sel.target[0], sel.target[1]),
                        anncoords="offset points", fontsize=9,
                        fontname="Ubuntu", color="lime",
@@ -86,7 +89,6 @@ plt.show()
 
 # %% Sandbox
 
-df = pd.DataFrame();
-df = get_data.get_table_latest_value_from_server(URL_BUOY_REALTIME_ROOT, 
-                                                 DF_STATION_INFO['# STATION_ID'][0],
-                                                 COLS[14])
+tmp = get_data.get_table_latest_value_from_server(URL_BUOY_REALTIME_ROOT, 
+                                                  DF_STATION_INFO['# STATION_ID'][0],
+                                                  COLS[14])

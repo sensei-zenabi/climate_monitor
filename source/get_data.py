@@ -53,13 +53,24 @@ def get_table_columns_from_server(URL, filename, extension='.txt', header=0):
 
     return DF_DATA
 
-def get_table_latest_value_from_server(URL, filename, column, extension='.txt', header=0):
+def get_table_latest_value_from_server(URL, filename, 
+                                       column, extension='.txt', 
+                                       header=0, nrows=3, 
+                                       firstrow=1, isnum=True):
     
     DF_DATA = pd.DataFrame();
     DF_DATA = pd.read_csv(URL+"/"+str(filename)+extension, 
-                          sep=" ", header=header, nrows=1, skiprows=1)
+                          sep="\s+", header=header, nrows=nrows);
     
-    return DF_DATA
+    try:
+        if (isnum):
+            retval = pd.to_numeric(DF_DATA[column][firstrow]);
+        else:
+            retval = str(DF_DATA[column][firstrow]);
+    except:
+        retval = "N/A";
+        
+    return retval
     
     
     
