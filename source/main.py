@@ -11,6 +11,9 @@ import vmath
 
 # %% Configuration
 
+with open('config.py') as file:
+    exec(file.read())
+
 URL_BUOY_REALTIME_ROOT = "https://www.ndbc.noaa.gov/data/realtime2/"
 URL_BUOY_STATION_INFO = "https://www.ndbc.noaa.gov/data/stations/station_table.txt"
 
