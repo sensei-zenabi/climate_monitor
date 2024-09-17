@@ -2,6 +2,8 @@ import pandas as pd
 import geopandas as gpd
 import matplotlib.pyplot as plt 
 import mplcursors
+import threading
+import os
 
 import get_data
 import vmath
@@ -43,53 +45,63 @@ gdf = gpd.GeoDataFrame(
     DF_STATION_INFO, 
     geometry=gpd.points_from_xy(DF_STATION_INFO['LONGITUDE'], DF_STATION_INFO['LATITUDE']))
 
-# Plot the world map
-plt.rcParams['toolbar'] = 'None' # 'toolbar2' to get back on
-fig = plt.figure(facecolor='black', figsize=(16,9))
-ax = fig.add_subplot()
-ax.set_facecolor('black')
-plt.subplots_adjust(left=0, right=1, top=1, bottom=0)
-world.plot(ax=ax, color='forestgreen', edgecolor='limegreen', alpha=0.5, lw=0.5)
-plt.title('ACTIVE MEASUREMENT STATIONS', color='limegreen', fontname='Ubuntu', fontsize=16)
-plt.text(-190,-106,s="Click station to view details", color='limegreen', fontsize=10)
-plt.text(-190,-110,s="Press Q to Exit plot", color='limegreen', fontsize=10)
+# Thread: GUI World Map
+def map_thread():
+    
+    # Plot the world map
+    plt.rcParams['toolbar'] = 'None' # 'toolbar2' to get back on
+    fig = plt.figure(facecolor='black', figsize=(16,9))
+    ax = fig.add_subplot()
+    ax.set_facecolor('black')
+    plt.subplots_adjust(left=0, right=1, top=1, bottom=0)
+    world.plot(ax=ax, color='forestgreen', edgecolor='limegreen', alpha=0.5, lw=0.5)
+    plt.title('ACTIVE MEASUREMENT STATIONS', color='limegreen', fontname='Ubuntu', fontsize=16)
+    plt.text(-190,-106,s="Click station to view details", color='limegreen', fontsize=10)
+    plt.text(-190,-110,s="Press Q to Exit plot", color='limegreen', fontsize=10)
+    manager = plt.get_current_fig_manager()
+    manager.full_screen_toggle()
 
-# Plot the GPS coordinates
-sc = gdf.plot(ax=plt.gca(), 
-              c=pd.to_numeric(gdf['# STATION_ID']) / pd.to_numeric(gdf['# STATION_ID']).max(), 
-              markersize=25)
+    # Plot the GPS coordinates
+    sc = gdf.plot(ax=plt.gca(), 
+                  c=pd.to_numeric(gdf['# STATION_ID']) / pd.to_numeric(gdf['# STATION_ID']).max(), 
+                  markersize=25)
 
-# Use mplcursors to annotate the points with the Station ID on mouse click
-cursor = mplcursors.cursor(sc, hover=False)
+    # Use mplcursors to annotate the points with the Station ID on mouse click
+    cursor = mplcursors.cursor(sc, hover=False)
+    
+    @cursor.connect("add")
+    def on_add(sel):
+        station_id = DF_STATION_INFO.iloc[sel.index]['# STATION_ID']
+        ttype = DF_STATION_INFO.iloc[sel.index]['TTYPE']
+        location = DF_STATION_INFO.iloc[sel.index]['LOCATION']
+        wtrtemp = get_data.get_table_latest_value_from_server(URL_BUOY_REALTIME_ROOT, 
+                                                              station_id,
+                                                              COLS[14])
+        sel.annotation.set(text=f"ID: {station_id} - {ttype}\nLocation: {location}\nWater Temp: {wtrtemp}°C", 
+                           position=(sel.target[0], sel.target[1]),
+                           anncoords="offset points", fontsize=9,
+                           fontname="Ubuntu", color="lime",
+                           backgroundcolor="lime", alpha=1)
+        sel.annotation.arrow_patch.set(arrowstyle="simple", fc="lime")
+        bbox = sel.annotation.get_bbox_patch()
+        bbox.set_alpha(0.95)  # Set transparency level (0.0 to 1.0)
+        bbox.set_facecolor('darkgreen')
+    
+    # Display the plot
+    plt.show(block=True)
 
-@cursor.connect("add")
-def on_add(sel):
-    station_id = DF_STATION_INFO.iloc[sel.index]['# STATION_ID']
-    ttype = DF_STATION_INFO.iloc[sel.index]['TTYPE']
-    location = DF_STATION_INFO.iloc[sel.index]['LOCATION']
-    wtrtemp = get_data.get_table_latest_value_from_server(URL_BUOY_REALTIME_ROOT, 
-                                                          station_id,
-                                                          COLS[14])
-    sel.annotation.set(text=f"ID: {station_id} - {ttype}\nLocation: {location}\nWater Temp: {wtrtemp}°C", 
-                       position=(sel.target[0], sel.target[1]),
-                       anncoords="offset points", fontsize=9,
-                       fontname="Ubuntu", color="lime",
-                       backgroundcolor="lime", alpha=1)
-    sel.annotation.arrow_patch.set(arrowstyle="simple", fc="lime")
-    bbox = sel.annotation.get_bbox_patch()
-    bbox.set_alpha(0.95)  # Set transparency level (0.0 to 1.0)
-    bbox.set_facecolor('darkgreen')
-
-# Display the plot
-manager = plt.get_current_fig_manager()
-manager.full_screen_toggle()
-plt.show(block=True)
-
+        
+# Thread: Console
 while (True):
-    print("Hit Q to exit...");
-    s = input();
+    print("\n\nMENU:");
+    print("M - Map")
+    print("Q - Quit");
+    s = input("Selection:");
+    if (s=='m'):
+        map_thread();
     if (s=='q'):
-        break;
+        break;    
+
 
 
 
