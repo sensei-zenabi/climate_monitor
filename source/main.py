@@ -16,6 +16,7 @@ with open('config.py') as file:
 
 URL_BUOY_REALTIME_ROOT = "https://www.ndbc.noaa.gov/data/realtime2/"
 URL_BUOY_STATION_INFO = "https://www.ndbc.noaa.gov/data/stations/station_table.txt"
+URL_SPACE_ROOT = "https://services.swpc.noaa.gov/text/"
 
 warnings.filterwarnings("default");
 
