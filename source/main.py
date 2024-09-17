@@ -2,6 +2,7 @@ import pandas as pd
 import geopandas as gpd
 import matplotlib.pyplot as plt 
 import mplcursors
+import warnings
 import threading
 import os
 
@@ -12,6 +13,8 @@ import vmath
 
 URL_BUOY_REALTIME_ROOT = "https://www.ndbc.noaa.gov/data/realtime2/"
 URL_BUOY_STATION_INFO = "https://www.ndbc.noaa.gov/data/stations/station_table.txt"
+
+warnings.filterwarnings("default");
 
 # %% Fetch buoy data from ndbc.noaa.gov
 
@@ -34,19 +37,19 @@ COLS = COLS[0].split()
 # For maps: https://www.naturalearthdata.com/downloads/110m-cultural-vectors/
 # For annotations: https://mplcursors.readthedocs.io/en/stable/examples/change_popup_color.html
 
-# Path to the downloaded shapefile
-shapefile_path = 'ne_10m_admin_0_countries.shp'
-
-# Load the world map from the shapefile
-world = gpd.read_file(shapefile_path)
-
-# Convert the DataFrame to a GeoDataFrame
-gdf = gpd.GeoDataFrame(
-    DF_STATION_INFO, 
-    geometry=gpd.points_from_xy(DF_STATION_INFO['LONGITUDE'], DF_STATION_INFO['LATITUDE']))
-
 # Thread: GUI World Map
 def map_thread():
+
+    # Path to the downloaded shapefile
+    shapefile_path = 'ne_10m_admin_0_countries.shp'
+
+    # Load the world map from the shapefile
+    world = gpd.read_file(shapefile_path)
+
+    # Convert the DataFrame to a GeoDataFrame
+    gdf = gpd.GeoDataFrame(
+        DF_STATION_INFO, 
+        geometry=gpd.points_from_xy(DF_STATION_INFO['LONGITUDE'], DF_STATION_INFO['LATITUDE']))
     
     # Plot the world map
     plt.rcParams['toolbar'] = 'None' # 'toolbar2' to get back on
@@ -77,10 +80,29 @@ def map_thread():
         wtrtemp = get_data.get_table_latest_value_from_server(URL_BUOY_REALTIME_ROOT, 
                                                               station_id,
                                                               COLS[14])
-        sel.annotation.set(text=f"ID: {station_id} - {ttype}\nLocation: {location}\nWater Temp: {wtrtemp}°C", 
-                           position=(sel.target[0], sel.target[1]),
-                           anncoords="offset points", fontsize=9,
-                           fontname="Ubuntu", color="lime",
+        airtemp = get_data.get_table_latest_value_from_server(URL_BUOY_REALTIME_ROOT, 
+                                                              station_id,
+                                                              COLS[13])
+        yy = get_data.get_table_latest_value_from_server(URL_BUOY_REALTIME_ROOT, 
+                                                         station_id,
+                                                         COLS[0])
+        mm = get_data.get_table_latest_value_from_server(URL_BUOY_REALTIME_ROOT, 
+                                                         station_id,
+                                                         COLS[1])
+        dd = get_data.get_table_latest_value_from_server(URL_BUOY_REALTIME_ROOT, 
+                                                         station_id,
+                                                         COLS[2])
+        hh = get_data.get_table_latest_value_from_server(URL_BUOY_REALTIME_ROOT, 
+                                                         station_id,
+                                                         COLS[2])
+        mn = get_data.get_table_latest_value_from_server(URL_BUOY_REALTIME_ROOT, 
+                                                         station_id,
+                                                         COLS[3])
+        sel.annotation.set(text=f"ID: {station_id} - {ttype}\nLocation: {location}\nLast Confirmed Time: {yy}-{mm}-{dd} {hh}:{mn}\nAir Temp: {airtemp}°C, Water Temp: {wtrtemp}°C",
+                           position=(-sel.target[0]/abs(sel.target[0]) * 20, 
+                                     20),
+                           anncoords="offset pixels",
+                           fontsize=9, fontname="Ubuntu", color="lime",
                            backgroundcolor="lime", alpha=1)
         sel.annotation.arrow_patch.set(arrowstyle="simple", fc="lime")
         bbox = sel.annotation.get_bbox_patch()
@@ -90,16 +112,28 @@ def map_thread():
     # Display the plot
     plt.show(block=True)
 
+def setup_monitoring():
+    print("\n\nCONFIGURATION:");
+    print("91 - See monitoring configuration");
+    print("92 - Add station");
+    print("93 - Remove station");
+    print("94 - Set data interval");
+    s = input("Selection: ");
         
 # Thread: Console
 while (True):
     print("\n\nMENU:");
-    print("M - Map")
-    print("Q - Quit");
-    s = input("Selection:");
-    if (s=='m'):
+    print("10 - Help");
+    print("20 - GUI: Explore Stations");
+    print("30 - Start Monitoring");
+    print("90 - Configuration");
+    print("0 - Quit");
+    s = input("Selection: ");
+    if (s=='20'):
         map_thread();
-    if (s=='q'):
+    if (s=='90'):
+        setup_monitoring();
+    if (s=='0'):
         break;    
 
 
