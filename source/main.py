@@ -6,7 +6,8 @@ import warnings
 import threading
 import os
 
-import get_data
+import get_marine
+import get_airport
 import vmath
 
 # %% Configuration
@@ -17,14 +18,19 @@ with open('config.py') as file:
 URL_BUOY_REALTIME_ROOT = "https://www.ndbc.noaa.gov/data/realtime2/"
 URL_BUOY_STATION_INFO = "https://www.ndbc.noaa.gov/data/stations/station_table.txt"
 URL_SPACE_ROOT = "https://services.swpc.noaa.gov/text/"
+URL_AIRPORTS_ROOT = "https://tgftp.nws.noaa.gov/data/observations/metar/decoded/"
 
 warnings.filterwarnings("default");
 
 # %% Fetch buoy data from ndbc.noaa.gov
 
 # Information and metadata related to buoys
-DF_BUOY_IDs = get_data.get_files_from_server(URL_BUOY_REALTIME_ROOT)
-DF_STATION_INFO = get_data.get_table_from_server(URL_BUOY_STATION_INFO)
+DF_BUOY_IDs = get_marine.get_files_from_server(URL_BUOY_REALTIME_ROOT)
+DF_STATION_INFO = get_marine.get_table_from_server(URL_BUOY_STATION_INFO)
+
+# Filter buoy ids to contain only the configured stations
+if (par_selected_stations_only):
+  DF_BUOY_IDs = DF_BUOY_IDs[DF_BUOY_IDs['Filename'].isin(par_station_list)]
 
 # Filter the station info to contain only the buoys from which there are realtime data 
 DF_STATION_INFO = DF_STATION_INFO[DF_STATION_INFO['# STATION_ID'].isin(DF_BUOY_IDs['Filename'])].reset_index().drop(['index'], axis=1);
@@ -34,7 +40,7 @@ DF_STATION_INFO['LOCATION'] = DF_STATION_INFO['LOCATION'].str.split('(').str[0].
 DF_STATION_INFO['LATITUDE'], DF_STATION_INFO['LONGITUDE'] = zip(*DF_STATION_INFO['LOCATION'].apply(lambda x: vmath.convert_location(x)))
 
 # Get the columns for the realtime data using the first available station realtime data header
-COLS = get_data.get_table_columns_from_server(URL_BUOY_REALTIME_ROOT, DF_STATION_INFO['# STATION_ID'][0])
+COLS = get_marine.get_table_columns_from_server(URL_BUOY_REALTIME_ROOT, DF_STATION_INFO['# STATION_ID'][0])
 COLS = COLS[0].split()
 
 # %% APP - STATION BROWSER
@@ -81,25 +87,25 @@ def map_thread():
         station_id = DF_STATION_INFO.iloc[sel.index]['# STATION_ID']
         ttype = DF_STATION_INFO.iloc[sel.index]['TTYPE']
         location = DF_STATION_INFO.iloc[sel.index]['LOCATION']
-        wtrtemp = get_data.get_table_latest_value_from_server(URL_BUOY_REALTIME_ROOT, 
+        wtrtemp = get_marine.get_table_latest_value_from_server(URL_BUOY_REALTIME_ROOT, 
                                                               station_id,
                                                               COLS[14])
-        airtemp = get_data.get_table_latest_value_from_server(URL_BUOY_REALTIME_ROOT, 
+        airtemp = get_marine.get_table_latest_value_from_server(URL_BUOY_REALTIME_ROOT, 
                                                               station_id,
                                                               COLS[13])
-        yy = get_data.get_table_latest_value_from_server(URL_BUOY_REALTIME_ROOT, 
+        yy = get_marine.get_table_latest_value_from_server(URL_BUOY_REALTIME_ROOT, 
                                                          station_id,
                                                          COLS[0])
-        mm = get_data.get_table_latest_value_from_server(URL_BUOY_REALTIME_ROOT, 
+        mm = get_marine.get_table_latest_value_from_server(URL_BUOY_REALTIME_ROOT, 
                                                          station_id,
                                                          COLS[1])
-        dd = get_data.get_table_latest_value_from_server(URL_BUOY_REALTIME_ROOT, 
+        dd = get_marine.get_table_latest_value_from_server(URL_BUOY_REALTIME_ROOT, 
                                                          station_id,
                                                          COLS[2])
-        hh = get_data.get_table_latest_value_from_server(URL_BUOY_REALTIME_ROOT, 
+        hh = get_marine.get_table_latest_value_from_server(URL_BUOY_REALTIME_ROOT, 
                                                          station_id,
                                                          COLS[2])
-        mn = get_data.get_table_latest_value_from_server(URL_BUOY_REALTIME_ROOT, 
+        mn = get_marine.get_table_latest_value_from_server(URL_BUOY_REALTIME_ROOT, 
                                                          station_id,
                                                          COLS[3])
         sel.annotation.set(text=f"ID: {station_id} - {ttype}\nLocation: {location}\nLast Confirmed Time: {yy}-{mm}-{dd} {hh}:{mn}\nAir Temp: {airtemp}°C, Water Temp: {wtrtemp}°C",
