@@ -3,7 +3,9 @@ import pandas as pd
 import re
 from datetime import datetime
 
-def extract_metar_data(airport_code):
+URL_AIRPORTS_ROOT = "https://tgftp.nws.noaa.gov/data/observations/metar/decoded/"
+
+def get_data(airport_code):
     # URL to fetch METAR decoded data from NOAA
     url = f"https://tgftp.nws.noaa.gov/data/observations/metar/decoded/{airport_code}.TXT"
     
@@ -99,9 +101,9 @@ def extract_metar_data(airport_code):
     }
 
     # Convert to pandas DataFrame
-    df = pd.DataFrame([weather_data])
+    # df = pd.DataFrame([weather_data])
     
-    return df
+    return weather_data
 
 # Example usage
 # df = extract_metar_data("EFJY")

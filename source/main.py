@@ -18,7 +18,6 @@ with open('config.py') as file:
     exec(file.read())
 
 URL_SPACE_ROOT = "https://services.swpc.noaa.gov/text/"
-URL_AIRPORTS_ROOT = "https://tgftp.nws.noaa.gov/data/observations/metar/decoded/"
 
 warnings.filterwarnings("default");
 
@@ -26,6 +25,10 @@ warnings.filterwarnings("default");
 
 DF_BUOY_IDs, DF_STATION_INFO = get_marine.get_stations(par_selected_stations_only,
                                                        par_station_list);
+
+DF_AIRPORTS = get_airport.get_data("EFJY");
+
+DF_STATION_INFO.loc[len(DF_STATION_INFO)] = [99999,'','Airport','','','','EFJY','','','',DF_AIRPORTS['latitude'],DF_AIRPORTS['longitude']];
 
 # %% APP - STATION BROWSER
 # For maps: https://www.naturalearthdata.com/downloads/110m-cultural-vectors/
@@ -71,13 +74,22 @@ def map_thread():
         station_id = DF_STATION_INFO.iloc[sel.index]['# STATION_ID']
         ttype = DF_STATION_INFO.iloc[sel.index]['TTYPE']
         location = DF_STATION_INFO.iloc[sel.index]['LOCATION']
-        dft = get_marine.get_data(station_id);
-        sel.annotation.set(text=f"ID: {station_id} - {ttype}\nLocation: {location}\nLast Confirmed Time: {dft['Year']}-{dft['Month']}-{dft['Day']} {dft['Hour']}:{dft['Minute']}\nAir Temp: {dft['Air Temperature']}°C, Water Temp: {dft['Water Temperature']}°C",
-                           position=(-sel.target[0]/abs(sel.target[0]) * 20, 
-                                     20),
-                           anncoords="offset pixels",
-                           fontsize=9, fontname="Ubuntu", color="lime",
-                           backgroundcolor="lime", alpha=1)
+        if (station_id != '99999'):
+            dft = get_marine.get_data(station_id);
+            sel.annotation.set(text=f"ID: {station_id} - {ttype}\nLocation: {location}\nLast Confirmed Time: {dft['Year']}-{dft['Month']}-{dft['Day']} {dft['Hour']}:{dft['Minute']}\nAir Temp: {dft['Air Temperature']}°C, Water Temp: {dft['Water Temperature']}°C",
+                               position=(-sel.target[0]/abs(sel.target[0]) * 20, 
+                                         20),
+                               anncoords="offset pixels",
+                               fontsize=9, fontname="Ubuntu", color="lime",
+                               backgroundcolor="lime", alpha=1)
+        if (station_id == '99999'):
+            dft =get_airport.get_data(location);
+            sel.annotation.set(text=f"ID: {ttype}\nLocation: {location}\nLast Confirmed Time: {15}\nAir Temp: {dft['temperature_C']}°C, Wind Speed: {dft['wind_speed_m_s']}mPsec",
+                               position=(-sel.target[0]/abs(sel.target[0]) * 20, 
+                                         20),
+                               anncoords="offset pixels",
+                               fontsize=9, fontname="Ubuntu", color="lime",
+                               backgroundcolor="lime", alpha=1)
         sel.annotation.arrow_patch.set(arrowstyle="simple", fc="lime")
         bbox = sel.annotation.get_bbox_patch()
         bbox.set_alpha(0.95)  # Set transparency level (0.0 to 1.0)
