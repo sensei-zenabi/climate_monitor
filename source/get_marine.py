@@ -10,10 +10,12 @@ from bs4 import BeautifulSoup
 import pandas as pd
 import vmath
 
+
 # %% Attributes
 
-URL_BUOY_REALTIME_ROOT = "https://www.ndbc.noaa.gov/data/realtime2/"
-URL_BUOY_STATION_INFO = "https://www.ndbc.noaa.gov/data/stations/station_table.txt"
+URL_BUOY_REALTIME_ROOT = "https://www.ndbc.noaa.gov/data/realtime2/";
+URL_BUOY_STATION_INFO = "https://www.ndbc.noaa.gov/data/stations/station_table.txt";
+COLS = [];
 
 # %% Methods
 
@@ -80,6 +82,10 @@ def get_table_latest_value_from_server(URL, filename,
     
     
 def get_stations(par_selected_stations_only, par_station_list):
+    global COLS;
+    
+    print('\nFETCHING MARINE DATA...');
+    
     # Information and metadata related to buoys
     DF_BUOY_IDs = get_files_from_server(URL_BUOY_REALTIME_ROOT)
     DF_STATION_INFO = get_table_from_server(URL_BUOY_STATION_INFO)
@@ -99,9 +105,40 @@ def get_stations(par_selected_stations_only, par_station_list):
     COLS = get_table_columns_from_server(URL_BUOY_REALTIME_ROOT, DF_STATION_INFO['# STATION_ID'][0])
     COLS = COLS[0].split()
     
+    print("Found %i buoys:" % (len(DF_BUOY_IDs)));
+    print(DF_STATION_INFO);
+    
     return DF_BUOY_IDs, DF_STATION_INFO
     
     
+def get_data(station_id):
     
+    global COLS;
+    
+    df = {};
+    
+    df['Water Temperature'] = get_table_latest_value_from_server(URL_BUOY_REALTIME_ROOT, 
+                                                 station_id,
+                                                 COLS[14])
+    df['Air Temperature'] = get_table_latest_value_from_server(URL_BUOY_REALTIME_ROOT, 
+                                                 station_id,
+                                                 COLS[13])
+    df['Year'] = get_table_latest_value_from_server(URL_BUOY_REALTIME_ROOT, 
+                                            station_id,
+                                            COLS[0])
+    df['Month'] = get_table_latest_value_from_server(URL_BUOY_REALTIME_ROOT, 
+                                            station_id,
+                                            COLS[1])
+    df['Day'] = get_table_latest_value_from_server(URL_BUOY_REALTIME_ROOT, 
+                                            station_id,
+                                            COLS[2])
+    df['Hour'] = get_table_latest_value_from_server(URL_BUOY_REALTIME_ROOT, 
+                                            station_id,
+                                            COLS[2])
+    df['Minute'] = get_table_latest_value_from_server(URL_BUOY_REALTIME_ROOT, 
+                                            station_id,
+                                            COLS[3])
+    
+    return df;
     
     

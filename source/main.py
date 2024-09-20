@@ -10,6 +10,8 @@ import get_marine
 import get_airport
 import vmath
 
+warnings.filterwarnings("ignore");
+
 # %% Configuration
 
 with open('config.py') as file:
@@ -69,28 +71,8 @@ def map_thread():
         station_id = DF_STATION_INFO.iloc[sel.index]['# STATION_ID']
         ttype = DF_STATION_INFO.iloc[sel.index]['TTYPE']
         location = DF_STATION_INFO.iloc[sel.index]['LOCATION']
-        wtrtemp = get_marine.get_table_latest_value_from_server(URL_BUOY_REALTIME_ROOT, 
-                                                              station_id,
-                                                              COLS[14])
-        airtemp = get_marine.get_table_latest_value_from_server(URL_BUOY_REALTIME_ROOT, 
-                                                              station_id,
-                                                              COLS[13])
-        yy = get_marine.get_table_latest_value_from_server(URL_BUOY_REALTIME_ROOT, 
-                                                         station_id,
-                                                         COLS[0])
-        mm = get_marine.get_table_latest_value_from_server(URL_BUOY_REALTIME_ROOT, 
-                                                         station_id,
-                                                         COLS[1])
-        dd = get_marine.get_table_latest_value_from_server(URL_BUOY_REALTIME_ROOT, 
-                                                         station_id,
-                                                         COLS[2])
-        hh = get_marine.get_table_latest_value_from_server(URL_BUOY_REALTIME_ROOT, 
-                                                         station_id,
-                                                         COLS[2])
-        mn = get_marine.get_table_latest_value_from_server(URL_BUOY_REALTIME_ROOT, 
-                                                         station_id,
-                                                         COLS[3])
-        sel.annotation.set(text=f"ID: {station_id} - {ttype}\nLocation: {location}\nLast Confirmed Time: {yy}-{mm}-{dd} {hh}:{mn}\nAir Temp: {airtemp}°C, Water Temp: {wtrtemp}°C",
+        dft = get_marine.get_data(station_id);
+        sel.annotation.set(text=f"ID: {station_id} - {ttype}\nLocation: {location}\nLast Confirmed Time: {dft['Year']}-{dft['Month']}-{dft['Day']} {dft['Hour']}:{dft['Minute']}\nAir Temp: {dft['Air Temperature']}°C, Water Temp: {dft['Water Temperature']}°C",
                            position=(-sel.target[0]/abs(sel.target[0]) * 20, 
                                      20),
                            anncoords="offset pixels",
