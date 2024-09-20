@@ -8,8 +8,14 @@ Created on Mon Sep 16 11:48:59 2024
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
+import vmath
 
-# %%
+# %% Attributes
+
+URL_BUOY_REALTIME_ROOT = "https://www.ndbc.noaa.gov/data/realtime2/"
+URL_BUOY_STATION_INFO = "https://www.ndbc.noaa.gov/data/stations/station_table.txt"
+
+# %% Methods
 
 def get_files_from_server(URL, extension=".txt", remove_extension=True):
     # Send a GET request to the URL
@@ -73,7 +79,27 @@ def get_table_latest_value_from_server(URL, filename,
     return retval
     
     
+def get_stations(par_selected_stations_only, par_station_list):
+    # Information and metadata related to buoys
+    DF_BUOY_IDs = get_files_from_server(URL_BUOY_REALTIME_ROOT)
+    DF_STATION_INFO = get_table_from_server(URL_BUOY_STATION_INFO)
     
+    # Filter buoy ids to contain only the configured stations
+    if (par_selected_stations_only):
+      DF_BUOY_IDs = DF_BUOY_IDs[DF_BUOY_IDs['Filename'].isin(par_station_list)]
+    
+    # Filter the station info to contain only the buoys from which there are realtime data 
+    DF_STATION_INFO = DF_STATION_INFO[DF_STATION_INFO['# STATION_ID'].isin(DF_BUOY_IDs['Filename'])].reset_index().drop(['index'], axis=1);
+
+    # Fix the GPS format
+    DF_STATION_INFO['LOCATION'] = DF_STATION_INFO['LOCATION'].str.split('(').str[0].str.strip()
+    DF_STATION_INFO['LATITUDE'], DF_STATION_INFO['LONGITUDE'] = zip(*DF_STATION_INFO['LOCATION'].apply(lambda x: vmath.convert_location(x)))
+
+    # Get the columns for the realtime data using the first available station realtime data header
+    COLS = get_table_columns_from_server(URL_BUOY_REALTIME_ROOT, DF_STATION_INFO['# STATION_ID'][0])
+    COLS = COLS[0].split()
+    
+    return DF_BUOY_IDs, DF_STATION_INFO
     
     
     
