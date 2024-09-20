@@ -28,7 +28,7 @@ DF_BUOY_IDs, DF_STATION_INFO = get_marine.get_stations(par_selected_stations_onl
 
 DF_AIRPORTS = get_airport.get_data("EFJY");
 
-DF_STATION_INFO.loc[len(DF_STATION_INFO)] = [99999,'','Airport','','','','EFJY','','','',DF_AIRPORTS['latitude'],DF_AIRPORTS['longitude']];
+DF_STATION_INFO.loc[len(DF_STATION_INFO)] = ['99999','','Airport','','','','EFJY','','','',DF_AIRPORTS['latitude'],DF_AIRPORTS['longitude']];
 
 # %% APP - STATION BROWSER
 # For maps: https://www.naturalearthdata.com/downloads/110m-cultural-vectors/
@@ -82,9 +82,10 @@ def map_thread():
                                anncoords="offset pixels",
                                fontsize=9, fontname="Ubuntu", color="lime",
                                backgroundcolor="lime", alpha=1)
+        
         if (station_id == '99999'):
-            dft =get_airport.get_data(location);
-            sel.annotation.set(text=f"ID: {ttype}\nLocation: {location}\nLast Confirmed Time: {15}\nAir Temp: {dft['temperature_C']}°C, Wind Speed: {dft['wind_speed_m_s']}mPsec",
+            dft = get_airport.get_data('EFJY');
+            sel.annotation.set(text=f"ID: {ttype} - Location: {location}\nLast Confirmed Time: {15}\nAir Temp: {dft['temperature_C']}°C, Wind Speed: {dft['wind_speed_m_s']}mPsec",
                                position=(-sel.target[0]/abs(sel.target[0]) * 20, 
                                          20),
                                anncoords="offset pixels",
