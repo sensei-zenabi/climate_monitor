@@ -134,10 +134,10 @@ def get_data(station_id):
                                             COLS[2])
     df['Hour'] = get_table_latest_value_from_server(URL_BUOY_REALTIME_ROOT, 
                                             station_id,
-                                            COLS[2])
+                                            COLS[3])
     df['Minute'] = get_table_latest_value_from_server(URL_BUOY_REALTIME_ROOT, 
                                             station_id,
-                                            COLS[3])
+                                            COLS[4])
     
     return df;
     

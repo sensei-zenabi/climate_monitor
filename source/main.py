@@ -9,6 +9,7 @@ import time
 
 import get_marine
 import get_airport
+import set_data
 import vmath
 
 warnings.filterwarnings("ignore");
@@ -113,6 +114,12 @@ def monitoring_thread():
         time_stamp = os.times().elapsed;
         if (time_elapsed >= 60*par_monitoring_interval):
             print("\nFetching data...");
+            for station_id in DF_STATION_INFO['# STATION_ID']: 
+                if (station_id != '99999'):
+                    print("Updating " + station_id + "...")
+                    dft = get_marine.get_data(station_id); 
+                    set_data.append_file(station_id=station_id, 
+                                         data_dict=dft)
             time_entry = os.times().elapsed;
         while ( (os.times().elapsed - time_stamp) <= 1.0):
             # do nothing
