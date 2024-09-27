@@ -114,11 +114,20 @@ def monitoring_thread():
         time_stamp = os.times().elapsed;
         if (time_elapsed >= 60*par_monitoring_interval):
             print("\nFetching data...");
-            for station_id in DF_STATION_INFO['# STATION_ID']: 
+            for index in DF_STATION_INFO.index:
+                station_id = DF_STATION_INFO.iloc[index]['# STATION_ID']
                 if (station_id != '99999'):
+                    # Write buoys to files
                     print("Updating " + station_id + "...")
                     dft = get_marine.get_data(station_id); 
                     set_data.append_file(station_id=station_id, 
+                                         data_dict=dft)
+                if (station_id == '99999'):
+                    # Write airports to files
+                    location = DF_STATION_INFO.iloc[index]['LOCATION']
+                    dft = get_airport.get_data(location);
+                    print("Updating " + location + "...")
+                    set_data.append_file(station_id=location, 
                                          data_dict=dft)
             time_entry = os.times().elapsed;
         while ( (os.times().elapsed - time_stamp) <= 1.0):
