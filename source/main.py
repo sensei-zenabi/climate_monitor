@@ -5,6 +5,7 @@ import mplcursors
 import warnings
 import threading
 import os
+import time
 
 import get_marine
 import get_airport
@@ -72,6 +73,7 @@ def map_thread():
     # Use mplcursors to annotate the points with the Station ID on mouse click
     cursor = mplcursors.cursor(sc, hover=False)
     
+    # Fetch data by mouse click
     @cursor.connect("add")
     def on_add(sel):
         station_id = DF_STATION_INFO.iloc[sel.index]['# STATION_ID']
@@ -102,27 +104,33 @@ def map_thread():
     # Display the plot
     plt.show(block=True)
 
-def setup_monitoring():
-    print("\n\nCONFIGURATION:");
-    print("91 - See monitoring configuration");
-    print("92 - Add station");
-    print("93 - Remove station");
-    print("94 - Set data interval");
-    s = input("Selection: ");
-        
+def monitoring_thread():
+    time_entry = os.times().elapsed;
+    running = True;
+    while (running):
+        time_elapsed = os.times().elapsed - time_entry;
+        print('Time remaining: %.0fs' % (60*par_monitoring_interval - time_elapsed)) 
+        time_stamp = os.times().elapsed;
+        if (time_elapsed >= 60*par_monitoring_interval):
+            print("\nFetching data...");
+            time_entry = os.times().elapsed;
+        while ( (os.times().elapsed - time_stamp) <= 1.0):
+            # do nothing
+            time.sleep(0.01)            
+            
 # Thread: Console
 while (True):
     print("\n\nMENU:");
     print("10 - Help");
     print("20 - GUI: Explore Stations");
     print("30 - Start Monitoring");
-    print("90 - Configuration");
+    # print("90 - Configuration");
     print("0 - Quit");
     s = input("Selection: ");
     if (s=='20'):
         map_thread();
-    if (s=='90'):
-        setup_monitoring();
+    if (s=='30'):
+        monitoring_thread();
     if (s=='0'):
         break;    
 
