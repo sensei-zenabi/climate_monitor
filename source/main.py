@@ -26,9 +26,12 @@ warnings.filterwarnings("default");
 DF_BUOY_IDs, DF_STATION_INFO = get_marine.get_stations(par_selected_stations_only,
                                                        par_station_list);
 
-DF_AIRPORTS = get_airport.get_data("EFJY");
+# %% Append airport data to the station info dataframe
 
-DF_STATION_INFO.loc[len(DF_STATION_INFO)] = ['99999','','Airport','','','','EFJY','','','',DF_AIRPORTS['latitude'],DF_AIRPORTS['longitude']];
+for airport in par_airport_list:
+    DF_AIRPORTS = get_airport.get_data(airport);
+    DF_STATION_INFO.loc[len(DF_STATION_INFO)] = ['99999','','Airport','',DF_AIRPORTS['location'],'',airport,'','','',DF_AIRPORTS['latitude'],DF_AIRPORTS['longitude']];
+
 
 # %% APP - STATION BROWSER
 # For maps: https://www.naturalearthdata.com/downloads/110m-cultural-vectors/
