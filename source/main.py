@@ -9,7 +9,7 @@ import time
 
 import get_marine
 import get_airport
-import set_data
+import store_data
 import vmath
 
 warnings.filterwarnings("ignore");
@@ -105,6 +105,7 @@ def map_thread():
     # Display the plot
     plt.show(block=True)
 
+# Thread: Monitoring
 def monitoring_thread():
     time_entry = os.times().elapsed;
     running = True;
@@ -120,14 +121,14 @@ def monitoring_thread():
                     # Write buoys to files
                     print("Updating " + station_id + "...")
                     dft = get_marine.get_data(station_id); 
-                    set_data.append_file(station_id=station_id, 
+                    store_data.append_file(station_id=station_id, 
                                          data_dict=dft)
                 if (station_id == '99999'):
                     # Write airports to files
                     location = DF_STATION_INFO.iloc[index]['LOCATION']
                     dft = get_airport.get_data(location);
                     print("Updating " + location + "...")
-                    set_data.append_file(station_id=location, 
+                    store_data.append_file(station_id=location, 
                                          data_dict=dft)
             time_entry = os.times().elapsed;
         while ( (os.times().elapsed - time_stamp) <= 1.0):
