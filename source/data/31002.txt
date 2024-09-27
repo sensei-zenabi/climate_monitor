@@ -1,5 +1,0 @@
-Water Temperature,Air Temperature,Year,Month,Day,Hour,Minute
-28.8,28.1,2024,9,27,16,0
-28.8,28.1,2024,9,27,16,0
-28.8,28.1,2024,9,27,16,0
-28.8,28.1,2024,9,27,16,0
