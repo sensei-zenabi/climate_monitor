@@ -117,6 +117,12 @@ def get_data(station_id):
     
     df = {};
     
+    for COL in COLS:
+        df[COL] = get_table_latest_value_from_server(URL_BUOY_REALTIME_ROOT, 
+                                                     station_id,
+                                                     COL)
+    
+    """
     df['Water Temperature'] = get_table_latest_value_from_server(URL_BUOY_REALTIME_ROOT, 
                                                  station_id,
                                                  COLS[14])
@@ -138,6 +144,7 @@ def get_data(station_id):
     df['Minute'] = get_table_latest_value_from_server(URL_BUOY_REALTIME_ROOT, 
                                             station_id,
                                             COLS[4])
+    """
     
     return df;
     

@@ -82,7 +82,7 @@ def map_thread():
         location = DF_STATION_INFO.iloc[sel.index]['LOCATION']
         if (station_id != '99999'):
             dft = get_marine.get_data(station_id);
-            sel.annotation.set(text=f"ID: {station_id} - {ttype}\nLocation: {location}\nLast Confirmed Time: {dft['Year']}-{dft['Month']}-{dft['Day']} {dft['Hour']}:{dft['Minute']}\nAir Temp: {dft['Air Temperature']}°C, Water Temp: {dft['Water Temperature']}°C",
+            sel.annotation.set(text=f"ID: {station_id} - {ttype}\nLocation: {location}\nLast Confirmed Time: {dft['#YY']}-{dft['MM']}-{dft['DD']} {dft['hh']}:{dft['mm']}\nAir Temp: {dft['ATMP']}°C, Water Temp: {dft['WTMP']}°C",
                                position=(-sel.target[0]/abs(sel.target[0]) * 20, 
                                          20),
                                anncoords="offset pixels",
