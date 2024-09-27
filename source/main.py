@@ -64,7 +64,7 @@ def map_thread():
     plt.text(-190,-106,s="Click station to view details", color='limegreen', fontsize=10)
     plt.text(-190,-110,s="Press Q to Exit plot", color='limegreen', fontsize=10)
     manager = plt.get_current_fig_manager()
-    manager.full_screen_toggle()
+    # manager.full_screen_toggle()
 
     # Plot the GPS coordinates
     sc = gdf.plot(ax=plt.gca(), 
@@ -140,6 +140,7 @@ while (True):
     print("\n\nMENU:");
     print("10 - Help");
     print("20 - GUI: Explore Stations");
+    print("21 - GUI: Visualize Data");
     print("30 - Start Monitoring");
     # print("90 - Configuration");
     print("0 - Quit");
