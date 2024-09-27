@@ -8,10 +8,22 @@ Created on Fri Sep 27 18:54:28 2024
 
 import os
 import csv
+from datetime import datetime
 import pandas as pd
 
 def append_file(station_id, data_dict):
+    # Create the filename
     filename = 'data/'+station_id+'.txt'
+    
+    # Get current system time
+    current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    
+    # Create a new dictionary with time as the first key-value pair
+    new_dict = {'Time': current_time}
+
+    # Update the data_dict to contain the time
+    new_dict.update(data_dict);
+    data_dict = new_dict;
     
     # Check if the file exists
     file_exists = os.path.isfile(filename)
