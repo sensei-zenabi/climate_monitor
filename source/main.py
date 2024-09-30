@@ -53,7 +53,7 @@ def map_thread():
     gdf = gpd.GeoDataFrame(
         DF_STATION_INFO, 
         geometry=gpd.points_from_xy(DF_STATION_INFO['LONGITUDE'], DF_STATION_INFO['LATITUDE']))
-    
+
     # Plot the world map
     plt.rcParams['toolbar'] = 'None' # 'toolbar2' to get back on
     fig = plt.figure(facecolor='black', figsize=(16,9))
@@ -74,7 +74,7 @@ def map_thread():
 
     # Use mplcursors to annotate the points with the Station ID on mouse click
     cursor = mplcursors.cursor(sc, hover=False)
-    
+
     # Fetch data by mouse click
     @cursor.connect("add")
     def on_add(sel):
@@ -89,7 +89,7 @@ def map_thread():
                                anncoords="offset pixels",
                                fontsize=9, fontname="Ubuntu", color="lime",
                                backgroundcolor="lime", alpha=1)
-        
+
         if (station_id == '99999'):
             dft = get_airport.get_data(location);
             sel.annotation.set(text=f"ID: {ttype}\nLocation: {location}\nLast Confirmed Time: {15}\nAir Temp: {dft['temperature_C']}°C, Humidity: {dft['relative_humidity']}\nWind Speed: {dft['wind_speed_m_s']}mPsec, Pressure: {dft['pressure_hPa']}hPa",
@@ -102,7 +102,7 @@ def map_thread():
         bbox = sel.annotation.get_bbox_patch()
         bbox.set_alpha(0.95)  # Set transparency level (0.0 to 1.0)
         bbox.set_facecolor('darkgreen')
-    
+
     # Display the plot
     plt.show(block=True)
 
@@ -199,7 +199,7 @@ while (True):
     if (s=='40'):
         monitoring_thread();
     if (s=='0'):
-        break;    
+        break;
 
 
 
