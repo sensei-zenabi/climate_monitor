@@ -169,12 +169,12 @@ def monitoring_thread():
                     # Print AIRPORT data to the screen
                     location = DF_STATION_INFO.iloc[index]['LOCATION']
                     dft = get_airport.get_data(location);
-                    output_text += "AP " + location + " ";
-                    output_text += "| Wind Speed [m/s]: %3.3s " % (dft["wind_speed_m_s"]);
+                    output_text += "%22.22s " % (dft["location"]) ;
+                    output_text += "| Wind Spd. [m/s]: %3.3s " % (dft["wind_speed_m_s"]);
                     output_text += "| Visibility [km]: %4.4s " % (dft["visibility_km"]);
-                    output_text += "| Air Temperature [degC]: %2.2s " % (dft["temperature_C"]);
-                    output_text += "| Rel. Humidity [prcnt]: %3.3s " % (dft["relative_humidity"]);
-                    output_text += "| Pressure [hPa]: %4.4s " % (dft["pressure_hPa"]);
+                    output_text += "| Air Temp. [degC]: %3.3s " % (dft["temperature_C"]);
+                    output_text += "| Rel. Hmd. [prcnt]: %3.3s " % (dft["relative_humidity"]);
+                    output_text += "| Pres. [hPa]: %4.4s " % (dft["pressure_hPa"]);
                     print(output_text);
             # Update time stamp of last screen refresh
             time_stamp_screen = os.times().elapsed;
