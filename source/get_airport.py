@@ -42,9 +42,9 @@ def get_data(airport_code):
         raw_data['wind_speed_knots'] = int(wind_match.group(2))  # Wind speed in knots
     
     # Extract visibility in miles
-    visibility_match = re.search(r'Visibility: greater than (\d+) mile', data)
+    visibility_match = re.search(r'Visibility: (greater than )?(\d+) mile', data)
     if visibility_match:
-        raw_data['visibility_miles'] = int(visibility_match.group(1))
+        raw_data['visibility_miles'] = int(visibility_match.group(2))
     
     # Extract temperature and dew point in Celsius
     temp_match = re.search(r'Temperature:.*\(([\d\.]+) C\)', data)

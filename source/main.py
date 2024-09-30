@@ -171,8 +171,8 @@ def monitoring_thread():
                     dft = get_airport.get_data(location);
                     output_text += "%22.22s " % (dft["location"]) ;
                     output_text += "| Wind Spd. [m/s]: %3.3s " % (dft["wind_speed_m_s"]);
-                    output_text += "| Visibility [km]: %4.4s " % (dft["visibility_km"]);
-                    output_text += "| Air Temp. [degC]: %3.3s " % (dft["temperature_C"]);
+                    output_text += "| Visb. [km]: %4.4s " % (dft["visibility_km"]);
+                    output_text += "| Air Temp. [degC]: %4.4s " % (dft["temperature_C"]);
                     output_text += "| Rel. Hmd. [prcnt]: %3.3s " % (dft["relative_humidity"]);
                     output_text += "| Pres. [hPa]: %4.4s " % (dft["pressure_hPa"]);
                     print(output_text);
