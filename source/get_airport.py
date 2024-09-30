@@ -47,12 +47,12 @@ def get_data(airport_code):
         raw_data['visibility_miles'] = int(visibility_match.group(1))
     
     # Extract temperature and dew point in Celsius
-    temp_match = re.search(r'Temperature:.*\((\d+) C\)', data)
-    dew_point_match = re.search(r'Dew Point:.*\((\d+) C\)', data)
+    temp_match = re.search(r'Temperature:.*\(([\d\.]+) C\)', data)
+    dew_point_match = re.search(r'Dew Point:.*\(([\d\.]+) C\)', data)
     if temp_match:
-        raw_data['temperature_C'] = int(temp_match.group(1))
+        raw_data['temperature_C'] = float(temp_match.group(1))  # Allowing decimal temperatures
     if dew_point_match:
-        raw_data['dew_point_C'] = int(dew_point_match.group(1))
+        raw_data['dew_point_C'] = float(dew_point_match.group(1))  # Allowing decimal dew points
 
     # Extract humidity and pressure
     humidity_match = re.search(r'Relative Humidity: (\d+)%', data)
