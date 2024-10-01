@@ -84,8 +84,6 @@ def get_table_latest_value_from_server(URL, filename,
 def get_stations(par_selected_stations_only, par_station_list):
     global COLS;
     
-    print('\nFETCHING MARINE DATA...');
-    
     # Information and metadata related to buoys
     DF_BUOY_IDs = get_files_from_server(URL_BUOY_REALTIME_ROOT)
     DF_STATION_INFO = get_table_from_server(URL_BUOY_STATION_INFO)
@@ -105,8 +103,8 @@ def get_stations(par_selected_stations_only, par_station_list):
     COLS = get_table_columns_from_server(URL_BUOY_REALTIME_ROOT, DF_STATION_INFO['# STATION_ID'][0])
     COLS = COLS[0].split()
     
-    print("Found %i buoys:" % (len(DF_BUOY_IDs)));
-    print(DF_STATION_INFO);
+    # print("Found %i buoys" % (len(DF_BUOY_IDs)));
+    # print(DF_STATION_INFO);
     
     return DF_BUOY_IDs, DF_STATION_INFO
     
@@ -114,6 +112,10 @@ def get_stations(par_selected_stations_only, par_station_list):
 def get_data(station_id):
     
     global COLS;
+
+    if not COLS:
+        COLS = get_table_columns_from_server(URL_BUOY_REALTIME_ROOT, station_id)
+        COLS = COLS[0].split()
     
     df = {};
     
