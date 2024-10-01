@@ -14,6 +14,7 @@ import store_data
 import vmath
 
 warnings.filterwarnings("ignore");
+os.system('clear');
 
 # %% Configuration
 
@@ -24,17 +25,38 @@ URL_SPACE_ROOT = "https://services.swpc.noaa.gov/text/"
 
 warnings.filterwarnings("default");
 
-# %% Fetch buoy data from ndbc.noaa.gov
+# %% Retrieve station info
 
-DF_BUOY_IDs, DF_STATION_INFO = get_marine.get_stations(par_selected_stations_only,
-                                                       par_station_list);
-
-# %% Append airport data to the station info dataframe
-
-for airport in par_airport_list:
-    DF_AIRPORTS = get_airport.get_data(airport);
-    DF_STATION_INFO.loc[len(DF_STATION_INFO)] = ['99999','','Airport','',DF_AIRPORTS['location'],'',airport,'','','',DF_AIRPORTS['latitude'],DF_AIRPORTS['longitude']];
-
+s = input("\nDo you wish to update the station file? [y/n]: ");
+if (s=="y"):
+    # Fetch buoy data from ndbc.noaa.gov
+    print("FETCHING BUOY DATA...");
+    DF_BUOY_IDs, DF_STATION_INFO = get_marine.get_stations(par_selected_stations_only,
+                                                           par_station_list);
+    print("Found %i buoys" % (len(DF_STATION_INFO)));
+    
+    # Append airport data to the station info dataframe
+    print("\nFETCHING AIRPORT DATA...");
+    i=1;
+    for airport in par_airport_list:
+        DF_AIRPORTS = get_airport.get_data(airport);
+        DF_STATION_INFO.loc[len(DF_STATION_INFO)] = ['99999','','Airport','',DF_AIRPORTS['location'],'',airport,'','','',DF_AIRPORTS['latitude'],DF_AIRPORTS['longitude']];
+        i+=1;
+    
+    # Prompt user about saving the station list to file
+    print("Found %i airports" % (i));
+    s = input("\nDo you wish to save the station file? [y/n]: ");
+    if (s=="y"):
+        print("Writing data/station_info.txt ...");
+        DF_STATION_INFO.to_csv('data/station_info.txt', sep=';', index=False)
+else:
+    print('Loading the saved station file...');
+    try:
+        DF_STATION_INFO = pd.read_csv('data/station_info.txt', sep=';');
+    except:
+        print("ERROR! Cannot find station info file!")
+        print("Exiting program...");
+        exit();
 
 # %% APP - STATION BROWSER
 # For maps: https://www.naturalearthdata.com/downloads/110m-cultural-vectors/
@@ -78,11 +100,11 @@ def map_thread():
     # Fetch data by mouse click
     @cursor.connect("add")
     def on_add(sel):
-        station_id = DF_STATION_INFO.iloc[sel.index]['# STATION_ID']
+        station_id = str(DF_STATION_INFO.iloc[sel.index]['# STATION_ID'])
         ttype = DF_STATION_INFO.iloc[sel.index]['TTYPE']
         location = DF_STATION_INFO.iloc[sel.index]['LOCATION']
         if (station_id != '99999'):
-            dft = get_marine.get_data(station_id);
+            dft = get_marine.get_data(station_id); 
             sel.annotation.set(text=f"ID: {station_id} - {ttype}\nLocation: {location}\nLast Confirmed Time: {dft['#YY']}-{dft['MM']}-{dft['DD']} {dft['hh']}:{dft['mm']}\nAir Temp: {dft['ATMP']}°C, Water Temp: {dft['WTMP']}°C",
                                position=(-sel.target[0]/abs(sel.target[0]) * 20, 
                                          20),
