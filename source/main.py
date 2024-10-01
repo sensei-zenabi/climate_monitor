@@ -114,7 +114,7 @@ def map_thread():
 
         if (station_id == '99999'):
             dft = get_airport.get_data(location);
-            sel.annotation.set(text=f"ID: {ttype}\nLocation: {location}\nLast Confirmed Time: {15}\nAir Temp: {dft['temperature_C']}°C, Humidity: {dft['relative_humidity']}\nWind Speed: {dft['wind_speed_m_s']}mPsec, Pressure: {dft['pressure_hPa']}hPa",
+            sel.annotation.set(text=f"ID: {location}\nLocation: {dft['location']}\nLast Confirmed Time: {dft['timestamp']}\nAir Temp: {dft['temperature_C']}°C, Humidity: {dft['relative_humidity']}\nWind Speed: {dft['wind_speed_m_s']}mPsec, Pressure: {dft['pressure_hPa']}hPa",
                                position=(-sel.target[0]/abs(sel.target[0]) * 20, 
                                          20),
                                anncoords="offset pixels",
