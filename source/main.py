@@ -204,6 +204,7 @@ def monitoring_thread():
                     print(output_text);
                     store_data.append_file(station_id=location, 
                                          data_dict=dft)
+            print('\nFinished fetching data. Waiting for next scheduled query...')
             # Update time stamp of last screen refresh
             time_stamp_screen = os.times().elapsed;
         time.sleep(0.1);
