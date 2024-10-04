@@ -129,6 +129,7 @@ def map_thread():
     plt.show(block=True)
 
 # Thread: Recording
+'''
 def recording_thread():
     os.system('clear');
     time_entry = os.times().elapsed;
@@ -140,7 +141,7 @@ def recording_thread():
         if (time_elapsed >= 60*par_monitoring_interval):
             print("\nFetching data...");
             for index in DF_STATION_INFO.index:
-                station_id = DF_STATION_INFO.iloc[index]['# STATION_ID']
+                station_id = str(DF_STATION_INFO.iloc[index]['# STATION_ID'])
                 if (station_id != '99999'):
                     # Write buoys to files
                     print("Updating " + station_id + "...")
@@ -158,6 +159,7 @@ def recording_thread():
         while ( (os.times().elapsed - time_stamp) <= 1.0):
             # do nothing
             time.sleep(0.01)
+'''
 
 # Thread: Monitoring
 def monitoring_thread():
@@ -176,7 +178,7 @@ def monitoring_thread():
             print("STATION MONITOR");
             print("Last update: %s - Next update: %s\n" % (datetime.now(), datetime.now()+timedelta(seconds=refresh_interval)));
             for index in DF_STATION_INFO.index:
-                station_id = DF_STATION_INFO.iloc[index]['# STATION_ID']
+                station_id = str(DF_STATION_INFO.iloc[index]['# STATION_ID'])
                 dft_all = []; output_text = "";
                 if (station_id != '99999'):
                     # Print BYOU data to the screen
@@ -187,6 +189,8 @@ def monitoring_thread():
                     output_text += "| Temperature Air / Water [degC]: %4.4s / %4.4s " % (dft["ATMP"],dft["WTMP"]);
                     output_text += "| Pressure [hPa]: %4.4s" % (dft["PRES"]);
                     print(output_text);
+                    store_data.append_file(station_id=station_id, 
+                                         data_dict=dft)
                 if (station_id == '99999'):
                     # Print AIRPORT data to the screen
                     location = DF_STATION_INFO.iloc[index]['LOCATION']
@@ -198,6 +202,8 @@ def monitoring_thread():
                     output_text += "| Rel. Hmd. [prcnt]: %3.3s " % (dft["relative_humidity"]);
                     output_text += "| Pres. [hPa]: %4.4s " % (dft["pressure_hPa"]);
                     print(output_text);
+                    store_data.append_file(station_id=location, 
+                                         data_dict=dft)
             # Update time stamp of last screen refresh
             time_stamp_screen = os.times().elapsed;
         time.sleep(0.1);
@@ -209,16 +215,13 @@ while (True):
     print("10 - Help");
     print("20 - GUI: Explore Stations");
     print("21 - GUI: Visualize Data");
-    print("30 - Start Recording");
-    print("40 - Start Monitoring");
+    print("30 - Start Monitoring");
     # print("90 - Configuration");
     print("0 - Quit");
     s = input("Selection: ");
     if (s=='20'):
         map_thread();
     if (s=='30'):
-        recording_thread();
-    if (s=='40'):
         monitoring_thread();
     if (s=='0'):
         break;
