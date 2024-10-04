@@ -161,6 +161,12 @@ def recording_thread():
             time.sleep(0.01)
 '''
 
+# Thread: Visualization
+def statistics_thread():
+    os.system('clear');
+    print('STATISTICS\n')
+    input('Press any key to continue...');
+
 # Thread: Monitoring
 def monitoring_thread():
     # Do nothing
@@ -215,14 +221,15 @@ while (True):
     print("\n\nMENU:");
     print("10 - Help");
     print("20 - GUI: Explore Stations");
-    print("21 - GUI: Visualize Data");
-    print("30 - Start Monitoring");
-    # print("90 - Configuration");
+    print("30 - Statistics");
+    print("40 - Station Monitoring");
     print("0 - Quit");
     s = input("Selection: ");
     if (s=='20'):
         map_thread();
     if (s=='30'):
+        statistics_thread();
+    if (s=='40'):
         monitoring_thread();
     if (s=='0'):
         break;
