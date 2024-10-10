@@ -11,7 +11,9 @@ from datetime import datetime, timedelta
 import get_marine
 import get_airport
 import store_data
+import process_data
 import vmath
+import terminal_map
 
 warnings.filterwarnings("ignore");
 os.system('clear');
@@ -128,43 +130,15 @@ def map_thread():
     # Display the plot
     plt.show(block=True)
 
-# Thread: Recording
-'''
-def recording_thread():
-    os.system('clear');
-    time_entry = os.times().elapsed;
-    running = True;
-    while (running):
-        time_elapsed = os.times().elapsed - time_entry;
-        print('Time remaining: %.0fs' % (60*par_monitoring_interval - time_elapsed)) 
-        time_stamp = os.times().elapsed;
-        if (time_elapsed >= 60*par_monitoring_interval):
-            print("\nFetching data...");
-            for index in DF_STATION_INFO.index:
-                station_id = str(DF_STATION_INFO.iloc[index]['# STATION_ID'])
-                if (station_id != '99999'):
-                    # Write buoys to files
-                    print("Updating " + station_id + "...")
-                    dft = get_marine.get_data(station_id); 
-                    store_data.append_file(station_id=station_id, 
-                                         data_dict=dft)
-                if (station_id == '99999'):
-                    # Write airports to files
-                    location = DF_STATION_INFO.iloc[index]['LOCATION']
-                    dft = get_airport.get_data(location);
-                    print("Updating " + location + "...")
-                    store_data.append_file(station_id=location, 
-                                         data_dict=dft)
-            time_entry = os.times().elapsed;
-        while ( (os.times().elapsed - time_stamp) <= 1.0):
-            # do nothing
-            time.sleep(0.01)
-'''
+# Thread: Terminal Map
+def terminal_map_thread():
+    terminal_map.display_map(DF_STATION_INFO, "LATITUDE", "LONGITUDE", additional_cols=["# STATION_ID"]);
 
 # Thread: Visualization
 def statistics_thread():
     os.system('clear');
     print('STATISTICS\n')
+    process_data.print_stats_from_folder('data/');
     input('Press any key to continue...');
 
 # Thread: Monitoring
@@ -220,13 +194,13 @@ while (True):
     os.system('clear');
     print("\n\nMENU:");
     print("10 - Help");
-    print("20 - GUI: Explore Stations");
+    print("20 - Station Map View");
     print("30 - Statistics");
     print("40 - Station Monitoring");
     print("0 - Quit");
     s = input("Selection: ");
     if (s=='20'):
-        map_thread();
+        terminal_map_thread();
     if (s=='30'):
         statistics_thread();
     if (s=='40'):
