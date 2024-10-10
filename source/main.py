@@ -64,6 +64,13 @@ else:
 # For maps: https://www.naturalearthdata.com/downloads/110m-cultural-vectors/
 # For annotations: https://mplcursors.readthedocs.io/en/stable/examples/change_popup_color.html
 
+# Thread: Print Stations
+def print_stations_thread():
+    os.system("clear");
+    print('MONITORED STATIONS:\n')
+    print(DF_STATION_INFO[["# STATION_ID","LOCATION","NAME"]].to_string());
+    input("\nPress any key to continue...");
+
 # Thread: GUI World Map
 def map_thread():
 
@@ -193,12 +200,14 @@ def monitoring_thread():
 while (True):
     os.system('clear');
     print("\n\nMENU:");
-    print("10 - Help");
+    print("10 - Print Stations");
     print("20 - Station Map View");
     print("30 - Statistics");
     print("40 - Station Monitoring");
     print("0 - Quit");
     s = input("Selection: ");
+    if (s=='10'):
+        print_stations_thread();
     if (s=='20'):
         terminal_map_thread();
     if (s=='30'):
