@@ -16,7 +16,7 @@ def lat_lon_to_map(lat, lon, map_width=80, map_height=25):
     y = int((90 - lat) * (map_height / 180))  # Convert lat from [-90, 90] to [0, map_height]
     return x, y
 
-def plot_coordinates_on_terminal(screen, df, lat_col, lon_col, additional_cols=None, margin_x_percent=5, margin_y_percent=5):
+def plot_coordinates_on_terminal(screen, df, lat_col, lon_col, additional_info_1=None, additional_info_2=None, additional_info_3=None, additional_info_4=None, margin_x_percent=5, margin_y_percent=5):
     """
     Function to plot GPS coordinates on a terminal ASCII map using `asciimatics`.
     It also plots additional columns from the DataFrame next to each "X" marker, separated by "/".
@@ -25,7 +25,10 @@ def plot_coordinates_on_terminal(screen, df, lat_col, lon_col, additional_cols=N
     :param df: DataFrame with latitude and longitude data
     :param lat_col: Column name for latitude
     :param lon_col: Column name for longitude
-    :param additional_cols: List of additional column names to display next to the "X"
+    :param additional_info_1: First additional column name to display next to the "X"
+    :param additional_info_2: Second additional column name to display next to the "X" if the first is "99999"
+    :param additional_info_3: Third additional column name to display next to the "X"
+    :param additional_info_4: Fourth additional column name to display next to the "X"
     :param margin_x_percent: Horizontal margin as a percentage of the screen width
     :param margin_y_percent: Vertical margin as a percentage of the screen height
     """
@@ -58,6 +61,9 @@ def plot_coordinates_on_terminal(screen, df, lat_col, lon_col, additional_cols=N
         y = margin_y + int((max_lat - lat) / (max_lat - min_lat) * (plot_height - 1))  # Scaled latitude
         return x, y
 
+    # To keep track of plotted points and avoid overlapping information
+    plotted_points = {}
+
     # Loop through DataFrame rows and plot each point
     for index, row in df.iterrows():
         lat = row[lat_col]
@@ -67,22 +73,37 @@ def plot_coordinates_on_terminal(screen, df, lat_col, lon_col, additional_cols=N
         x, y = lat_lon_to_scaled_map(lat, lon)
         
         # Prepare additional information to display
-        additional_info = ""
-        if additional_cols:
-            additional_info = ", ".join([str(row[col]) for col in additional_cols])
+        additional_info = []
+        if additional_info_1:
+            if str(row[additional_info_1]) == "99999" and additional_info_2:
+                additional_info.append(str(row[additional_info_2]))
+            else:
+                additional_info.append(str(row[additional_info_1]))
+        if additional_info_3:
+            additional_info.append(str(row[additional_info_3]))
+        if additional_info_4:
+            additional_info.append(str(row[additional_info_4]))
+        additional_info_str = ", ".join(additional_info)
         
+        # Adjust the position slightly if the point overlaps with an existing point
+        while (x, y) in plotted_points:
+            y += 1  # Move down to avoid overlap
+            if y >= max_height:
+                y = margin_y  # Wrap around if exceeding screen height
+
         # Plot the point (mark it with "X") and display additional information
         if 0 <= x < max_width and 0 <= y < max_height:
             screen.print_at("X", x, y)
-            if additional_info:
-                screen.print_at(f" {additional_info}", x + 1, y)
+            if additional_info_str:
+                screen.print_at(f" {additional_info_str}", x + 1, y)
+            plotted_points[(x, y)] = True
     
     # Refresh the screen to update the display
     screen.refresh()
     screen.wait_for_input(5000)
     
 
-def display_map(df, lat_col, lon_col, additional_cols=None, margin_x_percent=10, margin_y_percent=5):
+def display_map(df, lat_col, lon_col, additional_info_1=None, additional_info_2=None, additional_info_3=None, additional_info_4=None, margin_x_percent=7, margin_y_percent=0):
     """
     Function to display a world map with GPS coordinates in the terminal.
     Also plots values from additional columns of the DataFrame next to the markers.
@@ -90,11 +111,19 @@ def display_map(df, lat_col, lon_col, additional_cols=None, margin_x_percent=10,
     :param df: DataFrame with latitude and longitude data
     :param lat_col: Column name for latitude
     :param lon_col: Column name for longitude
-    :param additional_cols: List of additional column names to display next to the "X"
+    :param additional_info_1: First additional column name to display next to the "X"
+    :param additional_info_2: Second additional column name to display next to the "X" if the first is "99999"
+    :param additional_info_3: Third additional column name to display next to the "X"
+    :param additional_info_4: Fourth additional column name to display next to the "X"
     :param margin_x_percent: Horizontal margin as a percentage of the screen width
     :param margin_y_percent: Vertical margin as a percentage of the screen height
     """
-    Screen.wrapper(plot_coordinates_on_terminal, arguments=[df, lat_col, lon_col, additional_cols, margin_x_percent, margin_y_percent])
+    Screen.wrapper(plot_coordinates_on_terminal, arguments=[df, lat_col, lon_col, 
+                                                            additional_info_1, 
+                                                            additional_info_2, 
+                                                            additional_info_3, 
+                                                            additional_info_4, 
+                                                            margin_x_percent, margin_y_percent])
 
 '''
 # Example DataFrame with GPS coordinates and additional data
@@ -107,5 +136,5 @@ data = {
 df = pd.DataFrame(data)
 
 # Run the map display function with the example data and additional columns separated by "/"
-display_map(df, 'latitude', 'longitude', additional_cols=['city', 'population'], margin_x_percent=10, margin_y_percent=10)
+display_map(df, 'latitude', 'longitude', additional_info_1='city', additional_info_2='population', margin_x_percent=10, margin_y_percent=10)
 '''

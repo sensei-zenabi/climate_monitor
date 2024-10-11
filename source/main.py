@@ -139,7 +139,9 @@ def map_thread():
 
 # Thread: Terminal Map
 def terminal_map_thread():
-    terminal_map.display_map(DF_STATION_INFO, "LATITUDE", "LONGITUDE", additional_cols=["# STATION_ID"]);
+    terminal_map.display_map(DF_STATION_INFO, "LATITUDE", "LONGITUDE", 
+                             additional_info_1="# STATION_ID",
+                             additional_info_2="LOCATION");
 
 # Thread: Visualization
 def statistics_thread():
