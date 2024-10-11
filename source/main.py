@@ -29,7 +29,7 @@ warnings.filterwarnings("default");
 
 # %% Retrieve station info
 
-s = input("\nDo you wish to update the station file? [y/n]: ");
+s = input("\nDo you wish to update the STATION INFO file? [y/n]: ");
 if (s=="y"):
     # Fetch buoy data from ndbc.noaa.gov
     print("FETCHING BUOY DATA...");
@@ -47,12 +47,12 @@ if (s=="y"):
     
     # Prompt user about saving the station list to file
     print("Found %i airports" % (i));
-    s = input("\nDo you wish to save the station file? [y/n]: ");
+    s = input("\nDo you wish to save the STATION INFO file? [y/n]: ");
     if (s=="y"):
         print("Writing data/station_info.txt ...");
         DF_STATION_INFO.to_csv('data/station_info.txt', sep=';', index=False)
 else:
-    print('Loading the saved station file...');
+    print('Loading the saved STATION INFO file...');
     try:
         DF_STATION_INFO = pd.read_csv('data/station_info.txt', sep=';');
     except:
@@ -202,10 +202,10 @@ def monitoring_thread():
 while (True):
     os.system('clear');
     print("\n\nMENU:");
-    print("10 - Print Stations");
-    print("20 - Station Map View");
-    print("30 - Statistics");
-    print("40 - Station Monitoring");
+    print("10 - Print STATION INFO");
+    print("20 - Show Stations over ASCII Map");
+    print("30 - Display Statistics");
+    print("40 - Start Station Monitoring");
     print("0 - Quit");
     s = input("Selection: ");
     if (s=='10'):
