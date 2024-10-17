@@ -81,7 +81,7 @@ def get_data(airport_code):
     longitude = dms_to_decimal(raw_data['longitude_dms'])
 
     # Convert wind speed from knots to meters per second
-    wind_speed_m_s = raw_data['wind_speed_knots'] * 0.514444
+    wind_speed_m_s = raw_data['wind_speed_knots'] * 0.514444 if raw_data['wind_speed_knots'] else None
 
     # Convert visibility from miles to kilometers
     visibility_km = raw_data['visibility_miles'] * 1.60934 if raw_data['visibility_miles'] else None
@@ -92,7 +92,7 @@ def get_data(airport_code):
         'location': raw_data['location'],
         'latitude': round(latitude, 4),
         'longitude': round(longitude, 4),
-        'wind_speed_m_s': round(wind_speed_m_s, 2),
+        'wind_speed_m_s': round(wind_speed_m_s, 2) if wind_speed_m_s else None,
         'visibility_km': round(visibility_km, 2) if visibility_km else None,
         'temperature_C': raw_data['temperature_C'],
         'dew_point_C': raw_data['dew_point_C'],

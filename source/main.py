@@ -156,7 +156,7 @@ def monitoring_thread():
     os.system('clear');
     time_stamp_screen = os.times().elapsed;
     time_stamp_data = os.times().elapsed;
-    refresh_interval = 120;
+    refresh_interval = par_monitoring_interval * 60;
     running = True; first_run = True;
     while (running):
         time_screen_refresh = os.times().elapsed - time_stamp_screen; 
