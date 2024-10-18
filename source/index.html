@@ -107,16 +107,24 @@
                 const text = await response.text();
                 const stationData = parseStationFile(text);
 
-                // Create a dropdown to select the column to visualize
-                const dropdown = document.createElement('select');
+                // Create dropdowns to select the columns to visualize
+                const dropdown1 = document.createElement('select');
+                const dropdown2 = document.createElement('select');
                 const options = Object.keys(stationData[0]).filter(key => key !== 'Time');
                 options.forEach(option => {
-                    const opt = document.createElement('option');
-                    opt.value = option;
-                    opt.textContent = option;
-                    dropdown.appendChild(opt);
+                    const opt1 = document.createElement('option');
+                    opt1.value = option;
+                    opt1.textContent = option;
+                    dropdown1.appendChild(opt1);
+
+                    const opt2 = document.createElement('option');
+                    opt2.value = option;
+                    opt2.textContent = option;
+                    dropdown2.appendChild(opt2);
                 });
-                dropdown.onchange = () => renderChart(stationData, dropdown.value, canvas);
+
+                dropdown1.onchange = () => renderChart(stationData, dropdown1.value, dropdown2.value, canvas);
+                dropdown2.onchange = () => renderChart(stationData, dropdown1.value, dropdown2.value, canvas);
 
                 // Create chart container
                 const chartContainer = document.createElement('div');
@@ -124,9 +132,10 @@
                 const canvas = document.createElement('canvas');
                 chartContainer.appendChild(canvas);
 
-                // Append dropdown and chart container to popup
+                // Append dropdowns and chart container to popup
                 const popupContent = document.createElement('div');
-                popupContent.appendChild(dropdown);
+                popupContent.appendChild(dropdown1);
+                popupContent.appendChild(dropdown2);
                 popupContent.appendChild(chartContainer);
 
                 const popup = L.popup({ maxWidth: 450, maxHeight: 400 })
@@ -135,7 +144,7 @@
                     .openOn(map);
 
                 // Render initial chart
-                renderChart(stationData, options[0], canvas);
+                renderChart(stationData, options[0], options[1], canvas);
 
             } catch (error) {
                 console.error('Error fetching station file:', error);
@@ -157,12 +166,13 @@
             return stationData;
         }
 
-        function renderChart(stationData, column, canvas) {
+        function renderChart(stationData, column1, column2, canvas) {
             // Reverse the data so the newest values are on the right
             stationData = stationData.reverse();
 
             const labels = stationData.map(entry => entry['Time']);
-            const data = stationData.map(entry => parseFloat(entry[column]));
+            const data1 = stationData.map(entry => parseFloat(entry[column1]));
+            const data2 = stationData.map(entry => parseFloat(entry[column2]));
 
             // Destroy the previous chart instance if it exists
             if (chartInstance) {
@@ -173,12 +183,22 @@
                 type: 'line',
                 data: {
                     labels: labels,
-                    datasets: [{
-                        label: column,
-                        data: data,
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        fill: false
-                    }]
+                    datasets: [
+                        {
+                            label: column1,
+                            data: data1,
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            yAxisID: 'y-left',
+                            fill: false
+                        },
+                        {
+                            label: column2,
+                            data: data2,
+                            borderColor: 'rgba(192, 75, 75, 1)',
+                            yAxisID: 'y-right',
+                            fill: false
+                        }
+                    ]
                 },
                 options: {
                     responsive: true,
@@ -191,10 +211,23 @@
                                 text: 'Time'
                             }
                         },
-                        y: {
+                        'y-left': {
+                            type: 'linear',
+                            position: 'left',
                             title: {
                                 display: true,
-                                text: column
+                                text: column1
+                            }
+                        },
+                        'y-right': {
+                            type: 'linear',
+                            position: 'right',
+                            title: {
+                                display: true,
+                                text: column2
+                            },
+                            grid: {
+                                drawOnChartArea: false
                             }
                         }
                     }
