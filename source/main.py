@@ -1,7 +1,6 @@
 import pandas as pd
 import geopandas as gpd
 import matplotlib.pyplot as plt 
-import mplcursors
 import warnings
 import threading
 import os
@@ -70,72 +69,6 @@ def print_stations_thread():
     print('MONITORED STATIONS:\n')
     print(DF_STATION_INFO[["# STATION_ID","LOCATION","NAME"]].to_string());
     input("\nPress any key to continue...");
-
-# Thread: GUI World Map
-def map_thread():
-
-    # Path to the downloaded shapefile
-    shapefile_path = 'ne_10m_admin_0_countries.shp'
-
-    # Load the world map from the shapefile
-    world = gpd.read_file(shapefile_path)
-
-    # Convert the DataFrame to a GeoDataFrame
-    gdf = gpd.GeoDataFrame(
-        DF_STATION_INFO, 
-        geometry=gpd.points_from_xy(DF_STATION_INFO['LONGITUDE'], DF_STATION_INFO['LATITUDE']))
-
-    # Plot the world map
-    plt.rcParams['toolbar'] = 'None' # 'toolbar2' to get back on
-    fig = plt.figure(facecolor='black', figsize=(16,9))
-    ax = fig.add_subplot()
-    ax.set_facecolor('black')
-    plt.subplots_adjust(left=0, right=1, top=1, bottom=0)
-    world.plot(ax=ax, color='forestgreen', edgecolor='limegreen', alpha=0.5, lw=0.5)
-    plt.title('ACTIVE MEASUREMENT STATIONS', color='limegreen', fontname='Ubuntu', fontsize=16)
-    plt.text(-190,-106,s="Click station to view details", color='limegreen', fontsize=10)
-    plt.text(-190,-110,s="Press Q to Exit plot", color='limegreen', fontsize=10)
-    manager = plt.get_current_fig_manager()
-    # manager.full_screen_toggle()
-
-    # Plot the GPS coordinates
-    sc = gdf.plot(ax=plt.gca(), 
-                  c=pd.to_numeric(gdf['# STATION_ID']) / pd.to_numeric(gdf['# STATION_ID']).max(), 
-                  markersize=25)
-
-    # Use mplcursors to annotate the points with the Station ID on mouse click
-    cursor = mplcursors.cursor(sc, hover=False)
-
-    # Fetch data by mouse click
-    @cursor.connect("add")
-    def on_add(sel):
-        station_id = str(DF_STATION_INFO.iloc[sel.index]['# STATION_ID'])
-        ttype = DF_STATION_INFO.iloc[sel.index]['TTYPE']
-        location = DF_STATION_INFO.iloc[sel.index]['LOCATION']
-        if (station_id != '99999'):
-            dft = get_marine.get_data(station_id); 
-            sel.annotation.set(text=f"ID: {station_id} - {ttype}\nLocation: {location}\nLast Confirmed Time: {dft['#YY']}-{dft['MM']}-{dft['DD']} {dft['hh']}:{dft['mm']}\nAir Temp: {dft['ATMP']}°C, Water Temp: {dft['WTMP']}°C",
-                               position=(-sel.target[0]/abs(sel.target[0]) * 20, 
-                                         20),
-                               anncoords="offset pixels",
-                               fontsize=9, fontname="Ubuntu", color="lime",
-                               backgroundcolor="lime", alpha=1)
-
-        if (station_id == '99999'):
-            dft = get_airport.get_data(location);
-            sel.annotation.set(text=f"ID: {location}\nLocation: {dft['location']}\nLast Confirmed Time: {dft['timestamp']}\nAir Temp: {dft['temperature_C']}°C, Humidity: {dft['relative_humidity']}\nWind Speed: {dft['wind_speed_m_s']}mPsec, Pressure: {dft['pressure_hPa']}hPa",
-                               position=(-sel.target[0]/abs(sel.target[0]) * 20, 
-                                         20),
-                               anncoords="offset pixels",
-                               fontsize=9, fontname="Ubuntu", color="lime",
-                               backgroundcolor="lime", alpha=1)
-        sel.annotation.arrow_patch.set(arrowstyle="simple", fc="lime")
-        bbox = sel.annotation.get_bbox_patch()
-        bbox.set_alpha(0.95)  # Set transparency level (0.0 to 1.0)
-        bbox.set_facecolor('darkgreen')
-
-    # Display the plot
-    plt.show(block=True)
 
 # Thread: Terminal Map
 def terminal_map_thread():
