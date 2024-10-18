@@ -91,7 +91,7 @@
                         stations.push({
                             id: fields[0],
                             name: fields[4],
-                            location: fields[6], // Adding location field
+                            location: fields[6],  // Adding the location field for file identification
                             latitude: latitude,
                             longitude: longitude
                         });
@@ -129,7 +129,7 @@
                 popupContent.appendChild(dropdown);
                 popupContent.appendChild(chartContainer);
 
-                const popup = L.popup()
+                const popup = L.popup({ maxWidth: 450, maxHeight: 400 })
                     .setLatLng([latitude, longitude])
                     .setContent(popupContent)
                     .openOn(map);
@@ -158,6 +158,9 @@
         }
 
         function renderChart(stationData, column, canvas) {
+            // Reverse the data so the newest values are on the right
+            stationData = stationData.reverse();
+
             const labels = stationData.map(entry => entry['Time']);
             const data = stationData.map(entry => parseFloat(entry[column]));
 
@@ -179,7 +182,8 @@
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: false,
+                    maintainAspectRatio: true,
+                    aspectRatio: 1.5,
                     scales: {
                         x: {
                             title: {
