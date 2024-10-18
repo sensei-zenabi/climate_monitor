@@ -69,8 +69,9 @@
                 // Add markers to the map
                 stations.forEach(station => {
                     if (!isNaN(station.latitude) && !isNaN(station.longitude)) {
+                        const fileIdentifier = station.id === '99999' ? station.location.replace(/\s+/g, '_') : station.id;
                         const marker = L.marker([station.latitude, station.longitude]).addTo(map);
-                        marker.bindPopup(`<b>${station.name}</b><br><button onclick="showTrend('${station.id}', ${station.latitude}, ${station.longitude})">View Trends</button>`);
+                        marker.bindPopup(`<b>${station.name}</b><br><button onclick="showTrend('${fileIdentifier}', ${station.latitude}, ${station.longitude})">View Trends</button>`);
                     }
                 });
             } catch (error) {
@@ -90,6 +91,7 @@
                         stations.push({
                             id: fields[0],
                             name: fields[4],
+                            location: fields[6], // Adding location field
                             latitude: latitude,
                             longitude: longitude
                         });
@@ -99,9 +101,9 @@
             return stations;
         }
 
-        async function showTrend(stationId, latitude, longitude) {
+        async function showTrend(fileIdentifier, latitude, longitude) {
             try {
-                const response = await fetch(`/data/${stationId}.txt`);
+                const response = await fetch(`/data/${fileIdentifier}.txt`);
                 const text = await response.text();
                 const stationData = parseStationFile(text);
 
