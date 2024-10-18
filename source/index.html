@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCWC Weather Stations</title>
+    
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            display: flex;
+            flex-direction: column;
+        }
+        h1 + p {
+            margin-top: 2px;
+        }
+        #map {
+            flex: 1;
+            width: 100%;
+        }
+        footer {
+            text-align: center;
+            padding: 10px;
+            background-color: #f1f1f1;
+        }
+        .chart-container {
+            width: 400px;
+            height: 300px;
+        }
+    </style>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <h1>MCWC Headquarter</h1>
+    <p><em>*MCWC, Muurame Climate Weather Center</em></p>
+    <hr>
+    <div id="map"></div>
+    <footer>
+        <p>Last Updated: <span id="last-updated"></span></p>
+    </footer>
+    <script>
+        document.getElementById("last-updated").textContent = new Date().toLocaleString();
+
+        let map;
+        let chartInstance;
+
+        async function initMap() {
+            map = L.map('map').setView([20.0, 0.0], 2);
+
+            // Set up the OpenStreetMap tiles
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 18,
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+            try {
+                // Fetch the station data from the text file
+                const response = await fetch('/data/station_info.txt');
+                const text = await response.text();
+                const stations = parseStationData(text);
+
+                // Add markers to the map
+                stations.forEach(station => {
+                    if (!isNaN(station.latitude) && !isNaN(station.longitude)) {
+                        const marker = L.marker([station.latitude, station.longitude]).addTo(map);
+                        marker.bindPopup(`<b>${station.name}</b><br><button onclick="showTrend('${station.id}', ${station.latitude}, ${station.longitude})">View Trends</button>`);
+                    }
+                });
+            } catch (error) {
+                console.error('Error fetching station data:', error);
+            }
+        }
+
+        function parseStationData(data) {
+            const lines = data.split('\n');
+            const stations = [];
+            lines.forEach(line => {
+                const fields = line.split(';');
+                if (fields.length > 11) {
+                    const latitude = parseFloat(fields[10]);
+                    const longitude = parseFloat(fields[11]);
+                    if (!isNaN(latitude) && !isNaN(longitude)) {
+                        stations.push({
+                            id: fields[0],
+                            name: fields[4],
+                            latitude: latitude,
+                            longitude: longitude
+                        });
+                    }
+                }
+            });
+            return stations;
+        }
+
+        async function showTrend(stationId, latitude, longitude) {
+            try {
+                const response = await fetch(`/data/${stationId}.txt`);
+                const text = await response.text();
+                const stationData = parseStationFile(text);
+
+                // Create a dropdown to select the column to visualize
+                const dropdown = document.createElement('select');
+                const options = Object.keys(stationData[0]).filter(key => key !== 'Time');
+                options.forEach(option => {
+                    const opt = document.createElement('option');
+                    opt.value = option;
+                    opt.textContent = option;
+                    dropdown.appendChild(opt);
+                });
+                dropdown.onchange = () => renderChart(stationData, dropdown.value, canvas);
+
+                // Create chart container
+                const chartContainer = document.createElement('div');
+                chartContainer.className = 'chart-container';
+                const canvas = document.createElement('canvas');
+                chartContainer.appendChild(canvas);
+
+                // Append dropdown and chart container to popup
+                const popupContent = document.createElement('div');
+                popupContent.appendChild(dropdown);
+                popupContent.appendChild(chartContainer);
+
+                const popup = L.popup()
+                    .setLatLng([latitude, longitude])
+                    .setContent(popupContent)
+                    .openOn(map);
+
+                // Render initial chart
+                renderChart(stationData, options[0], canvas);
+
+            } catch (error) {
+                console.error('Error fetching station file:', error);
+            }
+        }
+
+        function parseStationFile(data) {
+            const lines = data.split('\n');
+            const keys = lines[0].split(',');
+            const stationData = [];
+            for (let i = 1; i < lines.length; i++) {
+                const values = lines[i].split(',');
+                const entry = {};
+                keys.forEach((key, index) => {
+                    entry[key] = values[index];
+                });
+                stationData.push(entry);
+            }
+            return stationData;
+        }
+
+        function renderChart(stationData, column, canvas) {
+            const labels = stationData.map(entry => entry['Time']);
+            const data = stationData.map(entry => parseFloat(entry[column]));
+
+            // Destroy the previous chart instance if it exists
+            if (chartInstance) {
+                chartInstance.destroy();
+            }
+
+            chartInstance = new Chart(canvas, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: column,
+                        data: data,
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Time'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: column
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        window.onload = initMap;
+    </script>
+</body>
+</html>
