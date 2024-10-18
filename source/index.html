@@ -32,6 +32,11 @@
             width: 400px;
             height: 300px;
         }
+        .trend-title {
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
     </style>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
@@ -71,7 +76,7 @@
                     if (!isNaN(station.latitude) && !isNaN(station.longitude)) {
                         const fileIdentifier = station.id === '99999' ? station.location.replace(/\s+/g, '_') : station.id;
                         const marker = L.marker([station.latitude, station.longitude]).addTo(map);
-                        marker.bindPopup(`<b>${station.name}</b><br><button onclick="showTrend('${fileIdentifier}', ${station.latitude}, ${station.longitude})">View Trends</button>`);
+                        marker.bindPopup(`<b>${station.name}</b><br><button onclick="showTrend('${fileIdentifier}', '${station.name}', ${station.latitude}, ${station.longitude})">View Trends</button>`);
                     }
                 });
             } catch (error) {
@@ -101,7 +106,7 @@
             return stations;
         }
 
-        async function showTrend(fileIdentifier, latitude, longitude) {
+        async function showTrend(fileIdentifier, stationName, latitude, longitude) {
             try {
                 const response = await fetch(`/data/${fileIdentifier}.txt`);
                 const text = await response.text();
@@ -123,17 +128,24 @@
                     dropdown2.appendChild(opt2);
                 });
 
-                dropdown1.onchange = () => renderChart(stationData, dropdown1.value, dropdown2.value, canvas);
-                dropdown2.onchange = () => renderChart(stationData, dropdown1.value, dropdown2.value, canvas);
+                dropdown1.onchange = () => renderChart(stationData, dropdown1.value, dropdown2.value, canvas, stationName);
+                dropdown2.onchange = () => renderChart(stationData, dropdown1.value, dropdown2.value, canvas, stationName);
 
                 // Create chart container
                 const chartContainer = document.createElement('div');
                 chartContainer.className = 'chart-container';
+
+                // Add station name as title
+                const trendTitle = document.createElement('div');
+                trendTitle.className = 'trend-title';
+                trendTitle.textContent = `Trend View for: ${stationName}`;
+
                 const canvas = document.createElement('canvas');
                 chartContainer.appendChild(canvas);
 
-                // Append dropdowns and chart container to popup
+                // Append title, dropdowns, and chart container to popup
                 const popupContent = document.createElement('div');
+                popupContent.appendChild(trendTitle);
                 popupContent.appendChild(dropdown1);
                 popupContent.appendChild(dropdown2);
                 popupContent.appendChild(chartContainer);
@@ -144,7 +156,7 @@
                     .openOn(map);
 
                 // Render initial chart
-                renderChart(stationData, options[0], options[1], canvas);
+                renderChart(stationData, options[0], options[1], canvas, stationName);
 
             } catch (error) {
                 console.error('Error fetching station file:', error);
@@ -166,7 +178,7 @@
             return stationData;
         }
 
-        function renderChart(stationData, column1, column2, canvas) {
+        function renderChart(stationData, column1, column2, canvas, stationName) {
             // Reverse the data so the newest values are on the right
             stationData = stationData.reverse();
 
