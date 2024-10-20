@@ -116,15 +116,23 @@
                 const dropdown1 = document.createElement('select');
                 const dropdown2 = document.createElement('select');
                 const options = Object.keys(stationData[0]).filter(key => key !== 'Time');
+
+                // Set default values for stations other than '99999'
+                const defaultColumn1 = fileIdentifier !== '99999' ? 'WTMP' : options[0];
+                const defaultColumn2 = fileIdentifier !== '99999' ? 'ATMP' : options[1];
+
+                // Populate the dropdowns and set the defaults
                 options.forEach(option => {
                     const opt1 = document.createElement('option');
                     opt1.value = option;
                     opt1.textContent = option;
+                    if (option === defaultColumn1) opt1.selected = true;
                     dropdown1.appendChild(opt1);
 
                     const opt2 = document.createElement('option');
                     opt2.value = option;
                     opt2.textContent = option;
+                    if (option === defaultColumn2) opt2.selected = true;
                     dropdown2.appendChild(opt2);
                 });
 
@@ -156,7 +164,7 @@
                     .openOn(map);
 
                 // Render initial chart
-                renderChart(stationData, options[0], options[1], canvas, stationName);
+                renderChart(stationData, defaultColumn1, defaultColumn2, canvas, stationName);
 
             } catch (error) {
                 console.error('Error fetching station file:', error);
