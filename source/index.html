@@ -117,10 +117,10 @@
                 const dropdown2 = document.createElement('select');
                 const options = Object.keys(stationData[0]).filter(key => key !== 'Time');
 
-                // Set default values for stations other than '99999'
-                const defaultColumn1 = fileIdentifier !== '99999' ? 'WTMP' : options[0];
-                const defaultColumn2 = fileIdentifier !== '99999' ? 'ATMP' : options[1];
-
+                // Set default values depending of the filetype (airports letters, byous numbers)
+                const defaultColumn1 = isNaN(fileIdentifier) ? 'temperature_C' : 'WTMP';
+                const defaultColumn2 = isNaN(fileIdentifier) ? 'pressure_hPa' : 'ATMP';
+                
                 // Populate the dropdowns and set the defaults
                 options.forEach(option => {
                     const opt1 = document.createElement('option');
